@@ -75,10 +75,37 @@ export default function OrganizerEvents() {
   const createEventMutation = useMutation({
     mutationFn: async (data: EventFormValues) => {
       try {
+        // Validate required fields
+        if (!data.date || !data.time) {
+          throw new Error("Date and time are required");
+        }
+        
+        if (!data.title) {
+          throw new Error("Event name is required");
+        }
+        
+        if (!data.description) {
+          throw new Error("Description is required");
+        }
+        
+        if (!data.location) {
+          throw new Error("Location is required");
+        }
+        
+        // Ensure date is in correct format (YYYY-MM-DD)
+        if (!/^\d{4}-\d{2}-\d{2}$/.test(data.date)) {
+          throw new Error("Date must be in YYYY-MM-DD format");
+        }
+        
+        // Ensure time is in correct format (HH:MM)
+        if (!/^\d{2}:\d{2}$/.test(data.time)) {
+          throw new Error("Time must be in HH:MM format");
+        }
+        
         // Combine date and time
         const dateTime = new Date(`${data.date}T${data.time}`);
         
-        // Check if date is valid before proceeding
+        // Double-check if date is valid
         if (isNaN(dateTime.getTime())) {
           throw new Error("Invalid date or time format");
         }
@@ -92,11 +119,13 @@ export default function OrganizerEvents() {
           pointsValue: data.pointsValue,
           status: data.status,
           organizerId: user!.id,
+          organizationId: 1, // Add organization ID for the event
         };
         
         return apiRequest("POST", "/api/events", eventData);
-      } catch (error) {
-        throw new Error("Please enter a valid date and time");
+      } catch (error: any) {
+        console.error("Event creation error:", error);
+        throw new Error(error.message || "Please enter a valid date and time");
       }
     },
     onSuccess: () => {

@@ -117,28 +117,74 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(403).json({ message: "Only organizers can create events" });
       }
       
-      // Prepare data from frontend
-      const { date, ...restOfData } = req.body;
+      // Log request body for debugging
+      console.log("Creating event with data:", req.body);
       
-      // Make sure the date is valid
       try {
-        // Ensure date is a valid date string that can be parsed
-        const parsedDate = new Date(date);
-        if (isNaN(parsedDate.getTime())) {
-          return res.status(400).json({ message: "Validation error: Expected date, received invalid date format" });
+        // Validate required fields
+        if (!req.body.date) {
+          return res.status(400).json({ message: "Date is required" });
         }
         
-        // Validate event data
-        const eventData = insertEventSchema.parse({
-          ...restOfData,
-          date: parsedDate.toISOString(), // Convert to ISO string for storage
-          organizerId: req.user.id
-        });
+        if (!req.body.title) {
+          return res.status(400).json({ message: "Event title is required" });
+        }
         
+        if (!req.body.description) {
+          return res.status(400).json({ message: "Event description is required" });
+        }
+        
+        if (!req.body.location) {
+          return res.status(400).json({ message: "Event location is required" });
+        }
+        
+        // Make sure the date is valid
+        let parsedDate;
+        try {
+          parsedDate = new Date(req.body.date);
+          
+          // Check if date is valid
+          if (isNaN(parsedDate.getTime())) {
+            return res.status(400).json({ 
+              message: "Validation error: Expected date, received invalid date format",
+              details: "The date provided could not be parsed correctly"
+            });
+          }
+        } catch (dateError) {
+          console.error("Date parsing error:", dateError);
+          return res.status(400).json({ 
+            message: "Validation error: Expected date, received invalid date format",
+            details: "Error occurred while parsing the date"
+          });
+        }
+        
+        // Get the organization for the current user
+        const organization = await storage.getOrganizationByUserId(req.user.id);
+        if (!organization) {
+          return res.status(400).json({ message: "Organization not found for current user" });
+        }
+        
+        // Prepare the event data
+        const eventData = {
+          organizerId: req.user.id,
+          organizationId: organization.id,
+          title: req.body.title,
+          description: req.body.description,
+          date: parsedDate.toISOString(),
+          location: req.body.location,
+          pointsValue: req.body.pointsValue || 0,
+          status: req.body.status || "active"
+        };
+        
+        // Create the event
         const event = await storage.createEvent(eventData);
         res.status(201).json(event);
-      } catch (dateError) {
-        return res.status(400).json({ message: "Validation error: Expected date, received invalid date format" });
+      } catch (error) {
+        console.error("Event creation error:", error);
+        return res.status(400).json({ 
+          message: "Failed to create event", 
+          details: error instanceof Error ? error.message : "Unknown error" 
+        });
       }
     } catch (error) {
       if (error instanceof ZodError) {
