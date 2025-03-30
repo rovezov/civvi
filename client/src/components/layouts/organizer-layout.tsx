@@ -34,7 +34,15 @@ export default function OrganizerLayout({ children, title }: OrganizerLayoutProp
       <header className="sticky top-0 bg-white z-10 shadow-sm">
         <div className="px-4 py-3 flex justify-between items-center">
           <h1 className="text-xl font-bold">{title}</h1>
-          <div className="flex items-center space-x-2">
+          <div className="flex items-center space-x-3">
+            <Button 
+              variant="ghost" 
+              size="sm" 
+              onClick={handleLogout}
+              className="text-gray-500 hover:text-gray-800 p-1"
+            >
+              <LogOut size={18} />
+            </Button>
             <Avatar className="h-8 w-8">
               <AvatarFallback className="bg-primary text-white">
                 {user ? getInitials(user.name) : "O"}

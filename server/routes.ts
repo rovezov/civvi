@@ -117,14 +117,29 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(403).json({ message: "Only organizers can create events" });
       }
       
-      // Validate event data
-      const eventData = insertEventSchema.parse({
-        ...req.body,
-        organizerId: req.user.id
-      });
+      // Prepare data from frontend
+      const { date, ...restOfData } = req.body;
       
-      const event = await storage.createEvent(eventData);
-      res.status(201).json(event);
+      // Make sure the date is valid
+      try {
+        // Ensure date is a valid date string that can be parsed
+        const parsedDate = new Date(date);
+        if (isNaN(parsedDate.getTime())) {
+          return res.status(400).json({ message: "Validation error: Expected date, received invalid date format" });
+        }
+        
+        // Validate event data
+        const eventData = insertEventSchema.parse({
+          ...restOfData,
+          date: parsedDate.toISOString(), // Convert to ISO string for storage
+          organizerId: req.user.id
+        });
+        
+        const event = await storage.createEvent(eventData);
+        res.status(201).json(event);
+      } catch (dateError) {
+        return res.status(400).json({ message: "Validation error: Expected date, received invalid date format" });
+      }
     } catch (error) {
       if (error instanceof ZodError) {
         return handleZodError(error, res);

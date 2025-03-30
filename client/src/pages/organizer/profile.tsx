@@ -149,7 +149,7 @@ export default function OrganizerProfile() {
         ) : (
           <Card>
             <div className="h-32 bg-primary"></div>
-            <CardContent className="px-5 pb-5 relative">
+            <CardContent className="px-5 pb-5 pt-16 relative">
               <div className="absolute -top-12 left-1/2 transform -translate-x-1/2">
                 <div className="relative inline-block">
                   <div className="w-24 h-24 bg-white rounded-full flex items-center justify-center border-4 border-white overflow-hidden">
@@ -161,7 +161,7 @@ export default function OrganizerProfile() {
                 </div>
               </div>
               
-              <div className="mt-14 text-center">
+              <div className="text-center">
                 <h2 className="text-xl font-bold">{organization?.name}</h2>
                 <p className="text-gray-500 mt-1">
                   {organization?.description && organization.description.length > 60

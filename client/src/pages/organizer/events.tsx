@@ -74,21 +74,30 @@ export default function OrganizerEvents() {
   // Create event mutation
   const createEventMutation = useMutation({
     mutationFn: async (data: EventFormValues) => {
-      // Combine date and time
-      const dateTime = new Date(`${data.date}T${data.time}`);
-      
-      // Create the event payload
-      const eventData = {
-        title: data.title,
-        description: data.description,
-        date: dateTime.toISOString(),
-        location: data.location,
-        pointsValue: data.pointsValue,
-        status: data.status,
-        organizerId: user!.id,
-      };
-      
-      return apiRequest("POST", "/api/events", eventData);
+      try {
+        // Combine date and time
+        const dateTime = new Date(`${data.date}T${data.time}`);
+        
+        // Check if date is valid before proceeding
+        if (isNaN(dateTime.getTime())) {
+          throw new Error("Invalid date or time format");
+        }
+        
+        // Create the event payload
+        const eventData = {
+          title: data.title,
+          description: data.description,
+          date: dateTime.toISOString(),
+          location: data.location,
+          pointsValue: data.pointsValue,
+          status: data.status,
+          organizerId: user!.id,
+        };
+        
+        return apiRequest("POST", "/api/events", eventData);
+      } catch (error) {
+        throw new Error("Please enter a valid date and time");
+      }
     },
     onSuccess: () => {
       toast({
@@ -157,6 +166,7 @@ export default function OrganizerEvents() {
           <DialogContent className="sm:max-w-[425px]">
             <DialogHeader>
               <DialogTitle>Create New Event</DialogTitle>
+              <p className="text-sm text-gray-500 mt-1">Fill out the form below to create a new community event.</p>
             </DialogHeader>
             <Form {...form}>
               <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4 mt-4">
