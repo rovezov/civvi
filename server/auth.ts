@@ -16,13 +16,22 @@ declare global {
 const scryptAsync = promisify(scrypt);
 
 async function hashPassword(password: string) {
+  if (!password) {
+    throw new Error("Password cannot be empty");
+  }
   const salt = randomBytes(16).toString("hex");
   const buf = (await scryptAsync(password, salt, 64)) as Buffer;
   return `${buf.toString("hex")}.${salt}`;
 }
 
 async function comparePasswords(supplied: string, stored: string) {
+  if (!supplied || !stored) {
+    return false;
+  }
   const [hashed, salt] = stored.split(".");
+  if (!hashed || !salt) {
+    return false;
+  }
   const hashedBuf = Buffer.from(hashed, "hex");
   const suppliedBuf = (await scryptAsync(supplied, salt, 64)) as Buffer;
   return timingSafeEqual(hashedBuf, suppliedBuf);
@@ -75,6 +84,13 @@ export function setupAuth(app: Express) {
       const isOrganizer = !!req.body.isOrganizer;
       const userDto = req.body;
       
+      // Validate required fields
+      if (!userDto.username || !userDto.password || !userDto.name || !userDto.email) {
+        return res.status(400).json({ 
+          message: "Missing required fields. Username, password, name, and email are required." 
+        });
+      }
+      
       // Check if username already exists
       const existingUser = await storage.getUserByUsername(userDto.username);
       if (existingUser) {
@@ -84,20 +100,28 @@ export function setupAuth(app: Express) {
       // Hash the password
       const hashedPassword = await hashPassword(userDto.password);
       
-      // Create the user
+      // Create the user object with only necessary fields to avoid
+      // passing through unknown properties from the request
       const userToCreate = {
-        ...userDto,
-        password: hashedPassword,
+        username: userDto.username,
+        name: userDto.name,
+        email: userDto.email,
+        bio: userDto.bio || "",
+        interests: userDto.interests || "",
+        isOrganizer: isOrganizer,
+        password: hashedPassword
       };
-      
-      // Remove confirmPassword
-      delete userToCreate.confirmPassword;
       
       // Extract organization data if user is an organizer
       let organizationData = null;
       if (isOrganizer && userDto.organization) {
-        organizationData = userDto.organization;
-        delete userToCreate.organization;
+        organizationData = {
+          name: userDto.organization.name,
+          description: userDto.organization.description,
+          website: userDto.organization.website || "",
+          email: userDto.organization.email || "",
+          categories: userDto.organization.categories || ""
+        };
       }
       
       const user = await storage.createUser(userToCreate);

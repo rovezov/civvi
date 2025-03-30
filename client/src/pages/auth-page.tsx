@@ -21,14 +21,42 @@ const loginSchema = z.object({
   password: z.string().min(1, "Password is required"),
 });
 
-// User registration schema (reusing the shared schema)
+// User registration schema for regular users
 const userSchema = z.object({
-  ...insertUserSchema.shape,
+  name: z.string().min(1, "Name is required"),
+  username: z.string().min(1, "Username is required"),
+  email: z.string().email("Please provide a valid email"),
+  password: z.string().min(6, "Password must be at least 6 characters"),
+  confirmPassword: z.string(),
+  bio: z.string().optional(),
+  interests: z.string().optional(),
   isOrganizer: z.literal(false).default(false),
+}).refine((data) => data.password === data.confirmPassword, {
+  message: "Passwords don't match",
+  path: ["confirmPassword"],
 });
 
-// Organizer registration schema (reusing the shared schema)
-const organizerSchema = insertOrganizerSchema;
+// Organizer registration schema with organization data
+const organizerSchema = z.object({
+  name: z.string().min(1, "Name is required"),
+  username: z.string().min(1, "Username is required"),
+  email: z.string().email("Please provide a valid email"),
+  password: z.string().min(6, "Password must be at least 6 characters"),
+  confirmPassword: z.string(),
+  bio: z.string().optional(),
+  interests: z.string().optional(),
+  isOrganizer: z.literal(true).default(true),
+  organization: z.object({
+    name: z.string().min(2, "Organization name is required"),
+    description: z.string().min(10, "Please provide a description"),
+    website: z.string().optional(),
+    email: z.string().email("Please provide a valid email").optional(),
+    categories: z.string().optional(),
+  }),
+}).refine((data) => data.password === data.confirmPassword, {
+  message: "Passwords don't match",
+  path: ["confirmPassword"],
+});
 
 type LoginFormValues = z.infer<typeof loginSchema>;
 type UserFormValues = z.infer<typeof userSchema>;
@@ -114,7 +142,7 @@ export default function AuthPage() {
               <Globe className="h-8 w-8 text-white" />
             </div>
             <div className="ml-4">
-              <h1 className="text-2xl font-bold">Community Connect</h1>
+              <h1 className="text-2xl font-bold">Civvy</h1>
               <p className="text-gray-500">Connect with local organizations</p>
             </div>
           </div>
