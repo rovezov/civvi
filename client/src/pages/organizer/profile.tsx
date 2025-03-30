@@ -79,7 +79,8 @@ export default function OrganizerProfile() {
   const updateOrgMutation = useMutation({
     mutationFn: async (data: OrganizationFormValues) => {
       if (!organization?.id) throw new Error("Organization ID not found");
-      return apiRequest("PUT", `/api/organizations/${organization.id}`, data);
+      const response = await apiRequest("PUT", `/api/organizations/${organization.id}`, data);
+      return await response.json();
     },
     onSuccess: () => {
       toast({

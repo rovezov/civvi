@@ -39,7 +39,8 @@ export default function UserProfile() {
   
   const onSubmit = async (data: ProfileFormValues) => {
     try {
-      const updatedUser = await apiRequest("PUT", "/api/user/profile", data);
+      const response = await apiRequest("PUT", "/api/user/profile", data);
+      const updatedUser = await response.json();
       queryClient.setQueryData(["/api/user"], updatedUser);
       
       toast({
@@ -59,7 +60,8 @@ export default function UserProfile() {
     logoutMutation.mutate();
   };
   
-  const getInitials = (name: string) => {
+  const getInitials = (name?: string) => {
+    if (!name) return "U";
     return name
       .split(" ")
       .map((n) => n[0])

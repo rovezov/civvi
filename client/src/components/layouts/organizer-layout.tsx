@@ -19,7 +19,8 @@ export default function OrganizerLayout({ children, title }: OrganizerLayoutProp
     logoutMutation.mutate();
   };
   
-  const getInitials = (name: string) => {
+  const getInitials = (name?: string) => {
+    if (!name) return "O";
     return name
       .split(" ")
       .map((n) => n[0])
@@ -52,24 +53,28 @@ export default function OrganizerLayout({ children, title }: OrganizerLayoutProp
       <nav className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 z-20 h-16">
         <div className="max-w-md mx-auto px-6">
           <div className="flex justify-around h-full">
-            <Link href="/organizer">
-              <a className={cn(
-                "flex flex-col items-center justify-center h-full w-1/2",
-                location === "/organizer" ? "text-primary" : "text-gray-500"
-              )}>
-                <CalendarPlus size={20} />
-                <span className="text-xs mt-1">Events</span>
-              </a>
-            </Link>
-            <Link href="/organizer/profile">
-              <a className={cn(
-                "flex flex-col items-center justify-center h-full w-1/2",
-                location === "/organizer/profile" ? "text-primary" : "text-gray-500"
-              )}>
-                <Building2 size={20} />
-                <span className="text-xs mt-1">Organization</span>
-              </a>
-            </Link>
+            <div className="w-1/2">
+              <Link href="/organizer">
+                <div className={cn(
+                  "flex flex-col items-center justify-center h-full cursor-pointer",
+                  location === "/organizer" ? "text-primary" : "text-gray-500"
+                )}>
+                  <CalendarPlus size={20} />
+                  <span className="text-xs mt-1">Events</span>
+                </div>
+              </Link>
+            </div>
+            <div className="w-1/2">
+              <Link href="/organizer/profile">
+                <div className={cn(
+                  "flex flex-col items-center justify-center h-full cursor-pointer",
+                  location === "/organizer/profile" ? "text-primary" : "text-gray-500"
+                )}>
+                  <Building2 size={20} />
+                  <span className="text-xs mt-1">Organization</span>
+                </div>
+              </Link>
+            </div>
           </div>
         </div>
       </nav>

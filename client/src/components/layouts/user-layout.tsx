@@ -20,7 +20,8 @@ export default function UserLayout({ children, title, points }: UserLayoutProps)
     logoutMutation.mutate();
   };
   
-  const getInitials = (name: string) => {
+  const getInitials = (name?: string) => {
+    if (!name) return "U";
     return name
       .split(" ")
       .map((n) => n[0])
@@ -71,33 +72,39 @@ export default function UserLayout({ children, title, points }: UserLayoutProps)
       <nav className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 z-20 h-16">
         <div className="max-w-md mx-auto px-6">
           <div className="flex justify-around h-full">
-            <Link href="/">
-              <a className={cn(
-                "flex flex-col items-center justify-center h-full w-1/3",
-                location === "/" ? "text-primary" : "text-gray-500"
-              )}>
-                <LayoutDashboard size={20} />
-                <span className="text-xs mt-1">Dashboard</span>
-              </a>
-            </Link>
-            <Link href="/search">
-              <a className={cn(
-                "flex flex-col items-center justify-center h-full w-1/3",
-                location === "/search" ? "text-primary" : "text-gray-500"
-              )}>
-                <Search size={20} />
-                <span className="text-xs mt-1">Discover</span>
-              </a>
-            </Link>
-            <Link href="/profile">
-              <a className={cn(
-                "flex flex-col items-center justify-center h-full w-1/3",
-                location === "/profile" ? "text-primary" : "text-gray-500"
-              )}>
-                <User size={20} />
-                <span className="text-xs mt-1">Profile</span>
-              </a>
-            </Link>
+            <div className="w-1/3">
+              <Link href="/">
+                <div className={cn(
+                  "flex flex-col items-center justify-center h-full cursor-pointer",
+                  location === "/" ? "text-primary" : "text-gray-500"
+                )}>
+                  <LayoutDashboard size={20} />
+                  <span className="text-xs mt-1">Dashboard</span>
+                </div>
+              </Link>
+            </div>
+            <div className="w-1/3">
+              <Link href="/search">
+                <div className={cn(
+                  "flex flex-col items-center justify-center h-full cursor-pointer",
+                  location === "/search" ? "text-primary" : "text-gray-500"
+                )}>
+                  <Search size={20} />
+                  <span className="text-xs mt-1">Discover</span>
+                </div>
+              </Link>
+            </div>
+            <div className="w-1/3">
+              <Link href="/profile">
+                <div className={cn(
+                  "flex flex-col items-center justify-center h-full cursor-pointer",
+                  location === "/profile" ? "text-primary" : "text-gray-500"
+                )}>
+                  <User size={20} />
+                  <span className="text-xs mt-1">Profile</span>
+                </div>
+              </Link>
+            </div>
           </div>
         </div>
       </nav>
