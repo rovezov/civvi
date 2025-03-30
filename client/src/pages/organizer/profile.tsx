@@ -1,4 +1,4 @@
-import { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
@@ -63,7 +63,7 @@ export default function OrganizerProfile() {
   });
   
   // Update when organization data is loaded
-  React.useEffect(() => {
+  useEffect(() => {
     if (organization) {
       form.reset({
         name: organization.name,
