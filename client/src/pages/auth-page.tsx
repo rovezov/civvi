@@ -142,7 +142,7 @@ export default function AuthPage() {
               <Globe className="h-8 w-8 text-white" />
             </div>
             <div className="ml-4">
-              <h1 className="text-2xl font-bold">Civvy</h1>
+              <h1 className="text-2xl font-bold">Civvi</h1>
               <p className="text-gray-500">Connect with local organizations</p>
             </div>
           </div>
